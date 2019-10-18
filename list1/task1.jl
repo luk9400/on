@@ -27,6 +27,11 @@ function maxFloat(type)
     while !isinf(x * 2)
         x *= 2 
     end
+    y = x / 2
+    while !isinf(x + y) && y >= 1.0
+        x += y 
+        y /= 2
+    end
     return x
 end
 
