@@ -19,3 +19,5 @@ end
 for i in 0:54
     println("\$ 2^{-$i} \$ & ", 1.0 + 2.0 ^ (-i), " & ", derivative(f, 1.0, 2.0 ^ (-i)), " & ", abs(derivativeOfF(1.0) - derivative(f, 1.0, 2.0 ^ (-i))), " \\\\\n\\hline")
 end
+
+println("f'(1.0) = ", derivativeOfF(1.0))

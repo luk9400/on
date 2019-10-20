@@ -10,6 +10,8 @@ function betweenOneAndTwo()
     return nextfloat(x)
 end
 
+# Funkcja do znajdowania najmniejszej dodatniej liczby
+# ktora nie spelnia rownania x * 1/x == 1
 function theSmallestOne()
     x = zero(Float64)
     while nextfloat(x) * (one(Float64) / nextfloat(x)) == one(Float64)
@@ -19,4 +21,4 @@ function theSmallestOne()
 end
 
 println("The smallest number in [1, 2] that doesn't satisfy the quation x * 1/x = 1: ", betweenOneAndTwo())
-println("The smallest number in [-inf, +inf] that doesn't satisfy the quation x * 1/x = 1: ", theSmallestOne())
+#println("The smallest number in [-inf, +inf] that doesn't satisfy the quation x * 1/x = 1: ", theSmallestOne())

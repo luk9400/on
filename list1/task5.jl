@@ -56,8 +56,8 @@ end
 println("Wynik dla 'w przod' i Float64: ", forward(x64, y64, 5))
 println("Wynik dla 'w przod' i Float32: ", forward(x32, y32, 5))
 
-println("Wynik dla 'w tyl' i Float64: ", forward(x64, y64, 5))
-println("Wynik dla 'w tyl' i Float32: ", forward(x32, y32, 5))
+println("Wynik dla 'w tyl' i Float64: ", backward(x64, y64, 5))
+println("Wynik dla 'w tyl' i Float32: ", backward(x32, y32, 5))
 
 println("Wynik dla najwiekszy-najmniejszy i Float64: ", fromTheBiggestToTheSmallest(x64, y64, Float64, 5))
 println("Wynik dla najwiekszy-najmniejszy i Float32: ", fromTheBiggestToTheSmallest(x32, y32, Float32, 5))
