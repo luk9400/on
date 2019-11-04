@@ -1,0 +1,2 @@
+set xrange [-10.0:45.0]
+plot exp(x) * log(1 + exp(-x))
