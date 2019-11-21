@@ -1,6 +1,8 @@
 # Author: Lukasz Bratos
 
-#module Methods
+module Methods
+
+export mbisekcji, mstycznych, msiecznych
 
 function mbisekcji(f, a::Float64, b::Float64, delta::Float64, epsilon::Float64)
     fa = f(a)
@@ -42,24 +44,22 @@ function mstycznych(f, pf, x0::Float64, delta::Float64, epsilon::Float64, maxit:
     err = 0
 
     if abs(v) < epsilon
-        # nie chce nawet myslec co to za blad
-        err = 3
         return (x0, v, 0, err)
     end
 
-    for k in 1:maxit
-
-        if (pf(x0) < eps(Float64))
+    for it in 1:maxit
+        if abs(pf(x0)) < epsilon
+            println(pf(x0))
             # pochodna bliska zeru?
             err = 2
-            return (x0, v, k, err)
+            return (x0, v, it, err)
         end
 
         x1 = x0 - v / pf(x0)
         v = f(x1)
 
         if abs(x1 - x0) < delta || abs(v) < epsilon
-            return (x1, v, k, err)
+            return (x1, v, it, err)
         end
 
         x0 = x1
@@ -97,4 +97,4 @@ function msiecznych(f, x0::Float64, x1::Float64, delta::Float64, epsilon::Float6
     return (x0, fx0, maxit, err)
 end
 
-#end
+end
