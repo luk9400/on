@@ -4,6 +4,22 @@ module Methods
 
 export mbisekcji, mstycznych, msiecznych
 
+"""
+Funkcja rozwiazuje rownanie postaci f(x) = 0 metoda bisekcji.
+function mbisekcji(f, a::Float64, b::Float64, delta::Float64, epsilon::Float64)
+    Dane:
+    f – funkcja f(x) zadana jako anonimowa funkcja,
+    a, b – końce przedziału początkowego,
+    delta, epsilon - dokładności obliczeń,
+    Wyniki:
+    (r, v, it, err) – czwórka, gdzie
+    r – przybliżenie pierwiastka równania f(x) = 0,
+    v – wartość f(r),
+    it – liczba wykonanych iteracji,
+    err – sygnalizacja błędu
+        0 - brak błędu
+        1 - funkcja nie zmienia znaku w przedziale [a,b]
+"""
 function mbisekcji(f, a::Float64, b::Float64, delta::Float64, epsilon::Float64)
     fa = f(a)
     fb = f(b)
@@ -39,6 +55,24 @@ function mbisekcji(f, a::Float64, b::Float64, delta::Float64, epsilon::Float64)
     end
 end
 
+"""
+Funkcja rozwiazuje rownanie postaci f(x) = 0 metoda Newtona (stycznych).
+function mstycznych(f,pf,x0::Float64, delta::Float64, epsilon::Float64, maxit::Int)
+    Dane:
+    f, pf– funkcją f(x) oraz pochodną f′(x) zadane jako anonimowe funkcje,
+    x0 – przybliżenie początkowe,
+    delta, epsilon – dokładności obliczeń,
+    maxit – maksymalna dopuszczalna liczba iteracji,
+    Wyniki:
+    (r, v, it, err) – czwórka, gdzie
+    r – przybliżenie pierwiastka równania f(x) = 0,
+    v – wartość f(r),
+    it – liczba wykonanych iteracji,
+    err – sygnalizacja błędu
+        0 - metoda zbieżna
+        1 - nie osiągnięto wymaganej dokładności w maxit iteracji,
+        2 - pochodna bliska zeru
+"""
 function mstycznych(f, pf, x0::Float64, delta::Float64, epsilon::Float64, maxit::Int)
     v = f(x0)
     err = 0
@@ -50,7 +84,7 @@ function mstycznych(f, pf, x0::Float64, delta::Float64, epsilon::Float64, maxit:
     for it in 1:maxit
         if abs(pf(x0)) < epsilon
             println(pf(x0))
-            # pochodna bliska zeru?
+            # pochodna bliska zeru
             err = 2
             return (x0, v, it, err)
         end
@@ -70,6 +104,23 @@ function mstycznych(f, pf, x0::Float64, delta::Float64, epsilon::Float64, maxit:
     return (x0, v, maxit, err)
 end
 
+"""
+Funkcja rozwiazuje rownanie postaci f(x) = 0 metoda siecznych.
+function msiecznych(f, x0::Float64, x1::Float64, delta::Float64, epsilon::Float64,maxit::Int)
+    Dane:
+    f – funkcja f(x)zadana jako anonimowa funkcja,
+    x0, x1 – przybliżenia początkowe,
+    delta, epsilon – dokładności obliczeń,
+    maxit – maksymalna dopuszczalna liczba iteracji,
+    Wyniki:
+    (r, v, it, err)– czwórka, gdzie
+    r – przybliżenie pierwiastka równania f(x) = 0,
+    v – wartość f(r),
+    it – liczba wykonanych iteracji,
+    err – sygnalizacja błędu
+    0 - metoda zbieżna
+    1 - nie osiągnięto wymaganej dokładności w maxit iteracji
+"""
 function msiecznych(f, x0::Float64, x1::Float64, delta::Float64, epsilon::Float64, maxit::Int)
     fx0 = f(x0)
     fx1 = f(x1)

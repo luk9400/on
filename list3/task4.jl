@@ -10,6 +10,3 @@ maxit = 100
 println("Metoda bisekcji: ", Methods.mbisekcji(f, 1.5, 2.0, delta, epsilon))
 println("Metoda Newtona: ", Methods.mstycznych(f, pf, 1.5, delta, epsilon, maxit))
 println("Metoda siecznych: ", Methods.msiecznych(f, 1.0, 2.0, delta, epsilon, maxit))
-
-
-println("Metoda bisekcji: ", Methods.mbisekcji(x -> x +1, -10.0, 2.0, delta, epsilon))
