@@ -1,6 +1,7 @@
 # Author: Lukasz Bratos
 include("methods.jl")
 
+# Dane do zadania: funkcja, jej pochodna, delta, epsilon oraz maxit
 f(x) = sin(x) - (x / 2) ^ 2
 pf(x) = cos(x) - (x / 2)
 delta = 10 ^ -5 / 2
