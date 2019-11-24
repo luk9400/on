@@ -10,11 +10,20 @@ delta = 10^-5
 epsilon = 10^-5
 maxit = 100
 
-newtonx0s = [0.5, 0.75, 1.0, 1.5, 5.0, 10.0, 20.0]
+# f1
+println("Metoda bisekcji dla f1 na przedziale [0.0, 1.5]: ", Methods.mbisekcji(f1, 0.0, 1.5, delta, epsilon))
+println("Metoda bisekcji dla f1 na przedziale [0.0, 2.0]: ", Methods.mbisekcji(f1, 0.0, 2.0, delta, epsilon))
+println("Metoda Newtona dla f1 z x0 = 0.0: ", Methods.mstycznych(f1, pf1, 0.0, delta, epsilon, maxit))
+println("Metoda siecznych dla f1, gdzie x0 = 0.5, a x1 = 1.5: ", Methods.msiecznych(f1, 0.0, 2.0, delta, epsilon, maxit))
 
-println("Metoda bisekcji dla f1 na przedziale [0.5, 1.5]: ", Methods.mbisekcji(f1, 0.5, 1.5, delta, epsilon))
-println("Metoda siecznych dla f1, gdzie x0 = 0.5, a x1 = 1.5: ", Methods.msiecznych(f1, 0.5, 1.5, delta, epsilon, maxit))
+# f2
+println("Metoda bisekcji dla f2 na przedziale [-1.0, 1.5]: ", Methods.mbisekcji(f2, -1.0, 1.5, delta, epsilon))
+println("Metoda bisekcji dla f2 na przedziale [-1.0, 1.0]: ", Methods.mbisekcji(f2, -1.0, 1.0, delta, epsilon))
+println("Metoda Newtona dla f2 z x0 = -1.0: ", Methods.mstycznych(f2, pf2, -1.0, delta, epsilon, maxit))
+println("Metoda siecznych dla f2, gdzie x0 = -1.0, a x1 = 1.0: ", Methods.msiecznych(f2, -1.0, 1.0, delta, epsilon, maxit))
 
-foreach(
-    x -> println("Metoda Newtona dla f1 z x0 = $x: ", Methods.mstycznych(f1, pf1, x, delta, epsilon, maxit)),
-    newtonx0s)
+# testy Newton
+println("Metoda Newtona dla f1 z x0 = 3.0: ", Methods.mstycznych(f1, pf1, 3.0, delta, epsilon, maxit))
+println("Metoda Newtona dla f1 z x0 = 15.0: ", Methods.mstycznych(f1, pf1, 15.0, delta, epsilon, maxit))
+println("Metoda Newtona dla f2 z x0 = 1.0: ", Methods.mstycznych(f2, pf2, 1.0, delta, epsilon, maxit))
+println("Metoda Newtona dla f2 z x0 = 50.0: ", Methods.mstycznych(f2, pf2, 50.0, delta, epsilon, maxit))

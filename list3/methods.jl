@@ -83,7 +83,6 @@ function mstycznych(f, pf, x0::Float64, delta::Float64, epsilon::Float64, maxit:
 
     for it in 1:maxit
         if abs(pf(x0)) < epsilon
-            println(pf(x0))
             # pochodna bliska zeru
             err = 2
             return (x0, v, it, err)
