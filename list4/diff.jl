@@ -102,11 +102,12 @@ Dane:
 f – funkcja f(x) zadana jako anonimowa funkcja,
 a, b – przedział interpolacji
 n – stopień wielomianu interpolacyjnego
+filename - nazwa pliku wynikowego
 
 Wyniki:
 – funkcja rysuje wielomian interpolacyjny i interpolowaną funkcję w przedziale [a, b]
 """
-function rysujNnfx(f, a::Float64, b::Float64, n::Int)
+function rysujNnfx(f, a::Float64, b::Float64, n::Int, filename::String)
     dist = (b - a) / n
 
     x = Vector{Float64}(undef, n + 1)
@@ -133,7 +134,7 @@ function rysujNnfx(f, a::Float64, b::Float64, n::Int)
 
     plot(range(a, stop=b, length=(numOfPoints + 1)), fx_val, color = "red", label = "f(x)")
     plot!(range(a, stop=b, length=(numOfPoints + 1)), wx_res, color = "blue", label = "w(x)")
-    savefig("./plots/plot_$a$b$n.png")
+    savefig("./plots/$filename.png")
 end
 
 end
