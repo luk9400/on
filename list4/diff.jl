@@ -121,19 +121,19 @@ function rysujNnfx(f, a::Float64, b::Float64, n::Int, filename::String)
     fx = ilorazyRoznicowe(x, y)
 
     numOfPoints = 100
-    accuracy_dist = (b - a) / numOfPoints
+    plot_dist = (b - a) / numOfPoints
 
     fx_val = Vector{Float64}(undef, numOfPoints + 1)
-    wx_res = Vector{Float64}(undef, numOfPoints + 1)
+    wx_val = Vector{Float64}(undef, numOfPoints + 1)
 
     for i in 1:(numOfPoints + 1)
-        t = a + (i - 1) * accuracy_dist
+        t = a + (i - 1) * plot_dist
         fx_val[i] = f(t)
-        wx_res[i] = warNewton(x, fx, t)
+        wx_val[i] = warNewton(x, fx, t)
     end
 
     plot(range(a, stop=b, length=(numOfPoints + 1)), fx_val, color = "red", label = "f(x)")
-    plot!(range(a, stop=b, length=(numOfPoints + 1)), wx_res, color = "blue", label = "w(x)")
+    plot!(range(a, stop=b, length=(numOfPoints + 1)), wx_val, color = "blue", label = "w(x)")
     savefig("./plots/$filename.png")
 end
 
