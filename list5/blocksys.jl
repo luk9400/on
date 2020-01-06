@@ -5,7 +5,7 @@ module Blocksys
 import SparseArrays
 using LinearAlgebra
 
-export readMatrixFromFile, readVectorFromFile, solveSparseGauss, solveSparseGaussWithChoice, sparseGaussLU, solveSparseGaussLU, sparseGaussWithChoice, solveSparseGaussLUWithChoice, printXToFile, printBToFile, computeRightSideVector
+export readMatrix, readVector, solveGauss, solveGaussWithChoice, lu, solveLu, gaussWithChoice, solveLuWithChoice, printXToFile, printBToFile, computeRightSideVector
 
 """
 Funkcja wczytuje macierz z pliku
@@ -18,7 +18,7 @@ Dane wyjściowe:
         n - rozmiar macierzy
         l - rozmiar bloku
 """
-function readMatrixFromFile(file::String)
+function readMatrix(file::String)
     open(file) do f
         firstLine = split(readline(f))
         n = parse(Int64, firstLine[1])
@@ -48,7 +48,7 @@ Dane wejściowe:
 Dane wyjściowe:
     vector - wczytany wektor
 """
-function readVectorFromFile(file::String)::Vector{Float64}
+function readVector(file::String)::Vector{Float64}
     open(file) do f
         n = parse(Int64, readline(f))
         vector = []
@@ -125,14 +125,16 @@ Dane wyjściowe:
         A - zmodyfikowana macierz
         b - zmodyfikowany wektor prawych stron
 """
-function sparseGauss(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64})
+function gauss(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64})
     for k in 1:(n - 1)
-        for i in (k + 1):min(n, Int64(l + l * floor((k + 1) / l)))
+        for i in (k + 1):min(n, k + l + 1)  
             z = A[i, k] / A[k, k]
             A[i, k] = 0.0
+
             for j in (k + 1):min(n, k + l)
                 A[i, j] -= z * A[k, j]
             end
+
             b[i] -= z * b[k]
         end
     end
@@ -151,8 +153,8 @@ Dane wejściowe:
 Dane wyjściowe:
     x - wektor wyników
 """
-function solveSparseGauss(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, _b::Vector{Float64})::Vector{Float64}
-    A, b = sparseGauss(_A, n, l, _b)
+function solveGauss(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, _b::Vector{Float64})::Vector{Float64}
+    A, b = gauss(_A, n, l, _b)
 
     x = zeros(Float64, n)
 
@@ -165,6 +167,7 @@ function solveSparseGauss(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::In
 
         x[i] = (b[i] - sum) / A[i, i]
     end
+
     return x
 end
 
@@ -182,27 +185,27 @@ Dane wyjściowe:
         b - zmodyfikowany wektor prawych stron
         perm - wektor permutacji
 """
-function sparseGaussWithChoice(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64})
+function gaussWithChoice(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64})
     perm = [1:n;]
 
     for k in 1:(n - 1)
-        for i in (k + 1):min(n, Int64(l + l * floor((k + 1) / l)))
-            max = abs(A[perm[i], k])
-            maxIdx = k
+        max = 0.0
+        maxIdx = 0
 
-            for j in i:min(n, Int64(l + l * floor((k + 1) / l)))
-                if abs(A[perm[i], k]) > max
-                    max = abs(A[perm[j], k])
-                    maxIdx = j
-                end
+        for i in k:min(n, k + l + 1)
+            if abs(A[perm[i], k]) > max
+                max = abs(A[perm[i], k])
+                maxIdx = i
             end
+        end
 
-            perm[maxIdx], perm[k] = perm[k], perm[maxIdx]
+        perm[maxIdx], perm[k] = perm[k], perm[maxIdx]
 
+        for i in (k + 1):min(n, k + l + 1) 
             z = A[perm[i], k] / A[perm[k], k]
             A[perm[i], k] = 0.0
 
-            for j in (k + 1):min(n, Int64(2 * l + l * floor((k + 1) / l)))
+            for j in (k + 1):min(n, k + 2 * l)
                 A[perm[i], j] -= z * A[perm[k], j]
             end
 
@@ -224,14 +227,15 @@ Dane wejściowe:
 Dane wyjściowe:
     x - wektor wyników
 """
-function solveSparseGaussWithChoice(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, _b::Vector{Float64})
-    A, b, perm = sparseGaussWithChoice(_A, n, l, _b)
+function solveGaussWithChoice(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, _b::Vector{Float64})
+    A, b, perm = gaussWithChoice(_A, n, l, _b)
 
     x = zeros(Float64, n)
 
     for i in n:-1:1
         sum = 0.0
-        for j in (i + 1):min(n, Int64(2 * l + l * floor((perm[i] + 1) / l)))
+        
+        for j in (i + 1):min(n, i + 2 * l)
             sum += A[perm[i], j] * x[j]
         end
 
@@ -249,59 +253,59 @@ Dane wejściowe:
     n - rozmiar macierzy
     l - rozmiar bloku
 Dane wyjściowe:
-    A - macierz rozkładu LU        
+    A - macierz U
+    L - macierz L        
 """
-function sparseGaussLU(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64)
-    A = copy(_A)
+function lu(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64)
+    # A is our U
+    L = SparseArrays.spzeros(n, n)
 
     for k in 1:(n - 1)
-        for i in (k + 1):min(n, Int64(l + l * floor((k + 1) / l)))
+        L[k ,k] = 1.0
+
+        for i in (k + 1):min(n, k + l + 1)
             z = A[i, k] / A[k, k]
-            A[i, k] = z
-            for j in (k + 1):min(n, k + l)
-                A[i, j] = A[i, j] - z * A[k, j]
+            L[i, k] = z
+            A[i, k] = 0.0
+            for j in (k + 1):min(n, k + 2 * l)
+                A[i, j] -= z * A[k, j]
             end
         end
     end
+    L[n,n] = 1.0
 
-    return A
+    return (A, L)
 end
 
 """
 Funkcja rozwiązująca układ równań Ax = b korzystając z rozkładu LU
 
 Dane wejściowe:
-    A - macierz rozkładu LU w formacie SparseMatrixCSC
+    U - macierz U w formacie SparseMatrixCSC
+    L - macierz L w formacie SparseMatrixCSC
     n - rozmiar macierzy
     l - rozmiar bloku
     b - wektor prawych stron
 Dane wyjściowe:
     x - wektor wyników
 """
-function solveSparseGaussLU(_A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, _b::Vector{Float64})::Vector{Float64}
-    A = copy(_A)
-    b = zeros(Float64, n)
-
-    for i in 1:n
-        sum = 0.0
-
-        for j in max(1, Int64(l * floor((i - 1) / l) - 1)):(i - 1)
-            sum += A[i, j] * b[j] 
-        end
-        
-        b[i] = _b[i] - sum
-    end
-
+function solveLu(U::SparseArrays.SparseMatrixCSC{Float64,Int64}, L::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64})::Vector{Float64}
     x = zeros(Float64, n)
+    
+    for k in 1:(n - 1)
+        for i in (k + 1):min(n, k + l + 1)
+            b[i] -= L[i, k] * b[k]
+        end
+    end
 
     for i in n:-1:1
         sum = 0.0
 
         for j in (i + 1):min(n, i + l)
-            sum += A[i, j] * x[j]
+            sum += U[i, j] * x[j]
         end
 
-        x[i] = (b[i] - sum) / A[i, i]
+        x[i] = (b[i] - sum) / U[i, i]
     end
 
     return x
@@ -316,35 +320,43 @@ Dane wejściowe:
     l - rozmiar bloku
 Dane wyjściowe:
     krotka (A, perm), gdzie:
-        A - macierz rozkładu LU        
+        A - macierz U
+        L - macierz L        
         perm - wektor permutacji
 """
-function sparseGaussLUWithChoice(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64)
+function luWithChoice(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64)
+    # A is our U
     perm = [1:n;]
 
+    L = SparseArrays.spzeros(n, n)
+
     for k in 1:(n - 1)
-        for i in (k + 1):min(n, Int64(l + l * floor((k + 1) / l)))
-            max = abs(A[perm[k], k])
-            maxIdx = k
-            for j in i:min(n, Int64(l + l * floor((k + 1) / l)))
-                if abs(A[perm[j], k]) > max
-                    max = abs(A[perm[j], k])
-                    maxIdx = j
-                end
+
+        max = 0.0
+        maxIdx = 0
+
+        for i in k:min(n, k + l + 1)
+            if abs(A[perm[i], k]) > max
+                max = abs(A[perm[i], k])
+                maxIdx = i
             end
+        end
 
-            perm[maxIdx], perm[k] = perm[k], perm[maxIdx]
+        perm[maxIdx], perm[k] = perm[k], perm[maxIdx]
 
+        for i in (k + 1):min(n, k + l + 1)
             z = A[perm[i], k] / A[perm[k], k]
-            A[perm[i], k] = z
 
-            for j in (k + 1):min(n, Int64(2 * l + l * floor((k + 1) / l)))
+            L[perm[i], k] = z
+            A[perm[i], k] = 0.0
+
+            for j in (k + 1):min(n, k + 2 * l)
                 A[perm[i], j] -= z * A[perm[k], j]
             end
         end
     end
     
-    return (A, perm)
+    return (A, L, perm)
 end
 
 """
@@ -359,29 +371,23 @@ Dane wejściowe:
 Dane wyjściowe:
     x - wektor wyników
 """
-function solveSparseGaussLUWithChoice(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64}, perm::Vector{Int64})
-    z = zeros(Float64, n)
-
-    for i in 1:n
-        sum = 0.0
-
-        for j in max(1, Int64(l * floor((i - 1) / l) - 1)):(i - 1)
-            sum += A[perm[i], j] * z[j]
-        end
-
-        z[i] = b[perm[i]] - sum
-    end
-
+function solveLuWithChoice(U::SparseArrays.SparseMatrixCSC{Float64,Int64}, L::SparseArrays.SparseMatrixCSC{Float64,Int64}, n::Int64, l::Int64, b::Vector{Float64}, perm::Vector{Int64})
     x = zeros(Float64, n)
+
+    for k in 1:(n - 1)
+        for i in (k + 1):min(n, k + l + 1)
+            b[perm[i]] -= L[perm[i], k] * b[perm[k]]
+        end
+    end
 
     for i in n:-1:1
         sum = 0.0
 
-        for j in (i + 1):min(n, Int64(2 * l + l * floor((perm[i] + 1) / l)))
-            sum += A[perm[i], j] * x[j]
+        for j in (i + 1):min(n, i + 2 * l)
+            sum += U[perm[i], j] * x[j]
         end
 
-        x[i] = (z[i] - sum) / A[perm[i], i]
+        x[i] = (b[perm[i]] - sum) / U[perm[i], i]
     end
 
     return x
