@@ -31,8 +31,7 @@ function classic(A, n, l, b)
     return \(Array(A), b)
 end
 
-#functions = [classic, Blocksys.solveGauss, Blocksys.solveGaussWithChoice, lu, luChoice]
-functions = [classic]
+functions = [classic, Blocksys.solveGauss, Blocksys.solveGaussWithChoice, lu, luChoice]
 
 for j in 1:length(functions)
     println("Algorytm $j")

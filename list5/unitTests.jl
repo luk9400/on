@@ -1,3 +1,5 @@
+# Author: Lukasz Bratos
+
 include("blocksys.jl")
 
 using Test
