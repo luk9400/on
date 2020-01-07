@@ -104,7 +104,7 @@ function computeRightSideVector(A::SparseArrays.SparseMatrixCSC{Float64,Int64}, 
     b = zeros(Float64, n)
 
     for i in 1:n
-        for j in max(1, i - (2 + l - i % l)):min(n, i + l)
+        for j in max(1, i - (2 + l)):min(n, i + l)
             b[i] += A[i, j]
         end
     end
